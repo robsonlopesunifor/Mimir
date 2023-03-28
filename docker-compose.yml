@@ -1,0 +1,51 @@
+version: "3.7"
+
+
+services:
+  lola:
+    build:
+      context: ./Lola/
+      dockerfile: Dockerfile
+    command: python Lola/main.py
+    volumes:
+      - ./Lola/:/app
+    env_file:
+      - ./Lola/.env
+      - .env
+    environment:
+      - DEBUG=True
+    ports:
+      - 8000:8000
+    networks:
+      - back
+
+  menu:
+    build:
+      context: ./Menu/
+      dockerfile: Dockerfile
+    command: uvicorn Menu.main:app --host 0.0.0.0 --port 8000
+    volumes:
+      - ./Menu/:/app
+    env_file:
+      - ./Menu/.env
+      - .env
+    environment:
+      - DEBUG=True
+    ports:
+      - 8001:8000
+    networks:
+      - back
+
+  pact-broker:
+    image: pactfoundation/pact-broker:2.79.1.1
+    environment: 
+      - PACT_BROKER_DATABASE_ADAPTER=sqlite
+      - PACT_BROKER_DATABASE_NAME=broker.sqlite
+    ports: 
+      - 9292:9292
+    networks:
+      - back
+
+networks: 
+  back:
+
